@@ -1,15 +1,13 @@
-import tkinter as tk
+from kivy.app import App
+from tripy.widgets import MapView
 
 
-class App(tk.Tk):
-    def __init__(self):
-        super().__init__()
+class TripyApp(App):
 
-    def run(self):
-        self.title('Tripy')
-        self.mainloop()
+    def build(self):
+        return MapView()
 
 
 if __name__ == '__main__':
-    app = App()
+    app = TripyApp()
     app.run()
