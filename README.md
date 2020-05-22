@@ -60,8 +60,7 @@ To contribute, please follow the workflow below. **Only** push directly to the `
 7. Open a merge request on github to merge your branch to master.
     https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request
 
-
-####If you want to install a package, please follow the following steps:
+#### If you want to install a package, please follow the following steps:
 1. Make sure you have activated your virtual environment. Else, you *will* mess up our dependencies.
 
     ```
