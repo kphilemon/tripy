@@ -6,6 +6,7 @@ This project utilises Dijkstra's algorithm as SPF algorithm and perform sentimen
 that are published within the last 3 months.
 
 ## Getting started
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 1. Clone the repository.
 
     ```
@@ -16,13 +17,14 @@ that are published within the last 3 months.
     cd tripy
     virtualenv venv
     ```
-3. Activate your virtual environment.
+3. Activate your virtual environment and install all the dependencies.
     ```
     venv\Scripts\activate
-    ```
-4. Install all the dependencies.
-    ```
     pip install -r requirements.txt
+    ```
+4. Run the application.
+    ```
+    python -m tripy
     ```
 
 ## Workflow
