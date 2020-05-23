@@ -324,6 +324,12 @@ class CEFBrowser(Widget, FocusBehavior):
         else:
             self._browser.Reload()
 
+    def navigate(self, url):
+        self.url = url
+        self._browser.GetMainFrame().ExecuteJavascript(
+            'window.location.href={}'.format(url)
+        )
+
     def delete_cookie(self, url=""):
         """ Deletes the cookie with the given url. If url is empty all cookies
         get deleted.
