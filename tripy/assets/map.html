@@ -46,14 +46,14 @@
 <script>
 
     const CITIES = {
-        'Kuala Lumpur': {location: [101.7, 3.15972], icon: 'markers/MY.png'},
-        'Jakarta': {location: [106.8, -6.16667], icon: 'markers/ID.png'},
-        'Bangkok': {location: [100.51667, 13.75], icon: 'markers/TH.png'},
-        'Taipei': {location: [121.63333, 25.03333], icon: 'markers/TW.png'},
-        'Hong Kong': {location: [114.15861, 22.27833], icon: 'markers/HK.png'},
-        'Tokyo': {location: [139.7263785, 35.6652065], icon: 'markers/JP.png'},
-        'Beijing': {location: [116.39139, 39.905], icon: 'markers/CN.png'},
-        'Seoul': {location: [127, 37.58333], icon: 'markers/KR.png'}
+        'kualalumpur': {name: 'Kuala Lumpur, Malaysia', location: [101.7, 3.15972], icon: 'markers/MY.png'},
+        'jakarta': {name: 'Jakarta, Indonesia', location: [106.8, -6.16667], icon: 'markers/ID.png'},
+        'bangkok': {name: 'Bangkok, Thailand', location: [100.51667, 13.75], icon: 'markers/TH.png'},
+        'taipei': {name: 'Taipei, Taiwan', location: [121.63333, 25.03333], icon: 'markers/TW.png'},
+        'hongkong': {name: 'Hong Kong', location: [114.15861, 22.27833], icon: 'markers/HK.png'},
+        'tokyo': {name: 'Tokyo, Japan', location: [139.7263785, 35.6652065], icon: 'markers/JP.png'},
+        'beijing': {name: 'Beijing, China', location: [116.39139, 39.905], icon: 'markers/CN.png'},
+        'seoul': {name: 'Seoul, Korea', location: [127, 37.58333], icon: 'markers/KR.png'}
     }
 
     // Initialise map
@@ -70,11 +70,11 @@
 
     // Plot custom markers
     for (let city in CITIES) {
-        plotMarker(MAP, CITIES[city].location, CITIES[city].icon, city);
+        plotMarker(MAP, CITIES[city].location, CITIES[city].icon,  CITIES[city].name);
     }
 
     // Plot polyline based on query parameters
-    let path = getQueryVariable('path').split(/,|%2C/);
+    let path = getQueryVariable('path').replace(/ |%20/g, '').toLowerCase().split(/,|%2c/);
     console.log(path)
     let coordinates = []
     for (let i in path) {
@@ -122,7 +122,7 @@
     }
 
     function getQueryVariable(variable) {
-        const query = window.location.search.substring(1).replace(/%20/g, ' ');
+        const query = window.location.search.substring(1);
         const vars = query.split('&');
         for (let i = 0; i < vars.length; i++) {
             const pair = vars[i].split('=');
