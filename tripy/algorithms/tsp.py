@@ -70,7 +70,7 @@ class NaiveTspSolver(TspSolver):
     # route param requires a list with starting node in it, else it will give key error
     def _tsp(self, route: List[int], nodes: List[int], cost: float) -> None:
         if len(nodes) == 0:
-            cost = round(cost, 2)
+            cost = round(cost, 4)
             if cost in self._routes:
                 self._routes[cost].append(route)
             else:
@@ -126,7 +126,7 @@ class DpTspSolver(TspSolver):
                 continue
 
             next_state = state | (1 << _next)
-            cost = round(self._matrix[curr][_next] + self._tsp(_next, next_state, cost_memo, node_memo), 2)
+            cost = round(self._matrix[curr][_next] + self._tsp(_next, next_state, cost_memo, node_memo), 4)
             if cost < min_cost:
                 min_cost = cost
                 next_node = _next
