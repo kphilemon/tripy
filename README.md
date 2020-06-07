@@ -1,10 +1,14 @@
 # Tripy
-Tripy is a sentiment based trip planner. It optimises the travelling route between Jakarta, Bangkok, Taipei, Hong Kong, Tokyo, Beijing and Seoul, where each cities has to be visited once
-based on the sentiment analysis of local economic and financial situation as well as the [geodesic distance](https://en.wikipedia.org/wiki/Geodesics_on_an_ellipsoid) between cities.
+Tripy is a trip planner that optimises the travelling route between Jakarta, Bangkok, Taipei, Hong Kong, 
+Tokyo, Beijing and Seoul, where each cities has to be visited once with the least [geodesic distance](https://en.wikipedia.org/wiki/Geodesics_on_an_ellipsoid) 
+travelled. This is a variant of the [TSP](https://en.wikipedia.org/wiki/Travelling_salesman_problem) where all nodes of 
+a graph have to be visited once without returning to the starting node. A modified [Held-Karp algorithm](https://en.wikipedia.org/wiki/Held%E2%80%93Karp_algorithm)
+is used.  
 
-This project solves a variant of the [TSP](https://en.wikipedia.org/wiki/Travelling_salesman_problem) where all nodes of a graph have to be visited without returning to the starting node.
-Weight of the edges connecting cities is the combination of distance and a weightage of sentiment analysis. The data sources includes major economic/ financial news website for each city
-that are published within the last 3 months.
+Tripy is also capable of optimising the travelling route based on the sentiment analysis of local economic and financial 
+situation of each cities. A [nearest neighbour algorithm](https://en.wikipedia.org/wiki/Nearest_neighbour_algorithm) 
+that evaluates both geodesic distance and sentiment score is utilised. The sentiment analysis is done based on the 
+major economic/ financial news website for each city that are published within the last 3 months.
 
 ## Getting started
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
