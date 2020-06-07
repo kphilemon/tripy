@@ -2,11 +2,11 @@ from typing import List, Dict
 
 
 # adjacency_matrix param should contain the distance cost only
-# this function takes in a Dict of analysis and incorporate it into the original distance cost
-# the formula to calculate cost:
-# distance_weightage * (distance cost / max distance) + sentiment_weightage * sentiment cost of destination city
-def include_sentiment_analysis(adjacency_matrix: List[List[float]], analysis: Dict,
-                               distance_weightage: float = 0.5, sentiment_weightage: float = 0.5) -> List[List[float]]:
+# this function takes in a Dict of sentiment score and incorporate it into the original distance cost
+# the formula to calculate final cost:
+# distance_weightage * (distance cost / max distance) + sentiment_weightage * sentiment score of destination city
+def include_sentiment_score(adjacency_matrix: List[List[float]], sentiment_score: Dict,
+                            distance_weightage: float = 0.5, sentiment_weightage: float = 0.5) -> List[List[float]]:
     n = len(adjacency_matrix)
 
     # make a deep copy and find out the max distance
@@ -26,7 +26,7 @@ def include_sentiment_analysis(adjacency_matrix: List[List[float]], analysis: Di
         for j in range(n):
             if i != j:
                 distance_cost = matrix[i][j] / max_distance
-                sentiment_cost = analysis[j]
+                sentiment_cost = sentiment_score[j]
                 matrix[i][j] = distance_weightage * distance_cost + sentiment_weightage * sentiment_cost
 
     return matrix
