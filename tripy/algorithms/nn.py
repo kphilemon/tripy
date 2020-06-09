@@ -1,6 +1,5 @@
 from typing import List, Dict
 
-
 # this nearest neighbour algorithm is a variant that makes decision with additional information (sentiment score)
 class NearestNeighbourSolver:
     def __init__(self, adjacency_matrix: List[List[float]], sentiment_score: Dict, start: int = 0) -> None:

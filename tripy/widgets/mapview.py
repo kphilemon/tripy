@@ -9,7 +9,7 @@ class MapView(BoxLayout):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self._base_url = os.getcwd()
+        self._base_url = "file://"+os.getcwd()
         if self._base_url.endswith(f'{os.sep}tripy{os.sep}tripy'):
             self._base_url += f'{os.sep}assets{os.sep}map.html'
         else:
