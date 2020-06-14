@@ -35,6 +35,68 @@ class TspSolver:
     def best_route(self) -> List[int]:
         raise NotImplementedError('Best route method not implemented!')
 
+class ModifiedTspSolver(TspSolver):
+
+    def __init__(self, adjacency_matrix: List[List[float]], score, start: int = 0) -> None:
+        super().__init__(adjacency_matrix, start)
+
+        # caching all routes to prevent expensive execution
+        # key: cost, value: [[nodes of a route]]
+        self._routes = {}
+        self._score = score
+
+    def all_route(self) -> Dict:
+        self._solve()
+        return self._routes
+
+    def min_cost(self) -> float:
+        self._solve()
+        return min(self._routes)
+
+    def best_route(self) -> List[int]:
+        self._solve()
+        return self._routes[self.min_cost()][0]
+
+    def _solve(self) -> None:
+        if self._solved:
+            return
+
+        # starting point might have changed, so clear it first
+        self._routes.clear()
+
+        route = [self._start]
+        nodes = [x for x in range(self._N) if x != self._start]
+        self._tsp(route, nodes, 0)
+
+        # prevent re-execute
+        self._solved = True
+
+    # route param requires a list with starting node in it, else it will give key error
+    def _tsp(self, route: List[int], nodes: List[int], cost: float) -> None:
+        if len(nodes) == 0:
+            cost = round(cost, 4)
+            if cost in self._routes:
+                self._routes[cost].append(route)
+            else:
+                self._routes[cost] = [route]
+            return
+        shortest_distance = inf
+        nearestNode = 0
+        for m in range(len(nodes)):
+            if self._matrix[route[-1]][nodes[m]] < shortest_distance:
+                shortest_distance = self._matrix[route[-1]][nodes[m]]
+                nearest = nodes[m]
+
+        for n in range(len(nodes)):
+            if nodes[n] == nearest:
+                self._tsp(route=route + [nodes[n]], nodes=nodes[:n] + nodes[n + 1:],
+                              cost=cost + self._matrix[route[-1]][nodes[n]])
+
+            if self._matrix[route[-1]][nodes[n]] - shortest_distance <= shortest_distance * 0.4:
+                if self._score[nodes[n]] -self._score[nearest] >= 0.02:
+                    self._tsp(route=route + [nodes[n]], nodes=nodes[:n] + nodes[n + 1:],
+                              cost=cost + (self._matrix[route[-1]][nodes[n]] - self._score[nodes[n]]))
+
 
 class NaiveTspSolver(TspSolver):
 

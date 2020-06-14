@@ -9,9 +9,9 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.scrollview import ScrollView
 from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 from tripy.article.article import SENTIMENT
-from tripy.article.graph import graph
+from tripy.article.graph import graph, probability_distribution
 from tripy.algorithms.nn import NearestNeighbourSolver
-from tripy.algorithms.tsp import DpTspSolver
+from tripy.algorithms.tsp import DpTspSolver, ModifiedTspSolver
 import tripy.geo.distance as distance
 from tripy.geo.locations import NAME_BY_INDEX, INDEX_BY_NAME
 from tripy.widgets.mapview import MapView
@@ -26,12 +26,20 @@ class TripyApp(App):
         self.start_button = Button(text="Starting Point", size_hint_y=None, height=40)
         self.scroll = ScrollView(size_hint=(None, 1), width=500)
         self.option_button = Button(text="Options", size_hint_y=None, height=40)
+        self.country_button = Button(text="Country", size_hint_y=None, height=40, size_hint_x=None, width=500)
         self.graph_view = BoxLayout(orientation='vertical', size_hint_x=None, width=1000)
         self.graph_view.bind(minimum_width=self.graph_view.setter('width'))
         self.scroll.add_widget(self.graph_view)
         self.scroll.do_scroll_x=True
         self.scroll.do_scroll_y=False
         self.button = BoxLayout(orientation='vertical')
+
+        self.scroll1 = ScrollView(size_hint=(None, 1), width=500)
+        self.probability_view = BoxLayout(orientation='vertical', size_hint_x=None, width=1000)
+        self.probability_view.bind(minimum_width=self.graph_view.setter('width'))
+        self.scroll1.add_widget(self.probability_view)
+        self.scroll1.do_scroll_x=True
+        self.scroll1.do_scroll_y=False
         # self.btnMY = Button(text='Malaysia', size_hint_x=None, width=100)
         # self.btnCN = Button(text='Beijing', size_hint_x=None, width=100, on_press=self._country_on_click)
         # self.btnHK = Button(text='Hong Kong', size_hint_x=None, width=100, on_press=self._country_on_click)
@@ -43,9 +51,10 @@ class TripyApp(App):
 
     def build(self) -> Widget:
         root = BoxLayout(orientation='horizontal')
-        left_top = GridLayout(cols=1, rows=3, padding=5, spacing=2.5, size_hint_x=None, width=500, height=200)
-        left_bot = GridLayout(cols=1, rows=3, padding=5,spacing=2.5, size_hint_x=None, width=500, height=800)
-        left = GridLayout(cols=1, rows=2, padding=5,spacing=2.5, size_hint_x=None, width=500)
+        left_top = GridLayout(cols=1, rows=3, size_hint_x=None, width=500, size_hint_y=None, height=120)
+        left_mid = GridLayout(cols=1, rows=3, size_hint_x=None, width=500)
+        left_bot = GridLayout(cols=1, rows=3, size_hint_x=None, width=500)
+        left = BoxLayout(orientation='vertical', width=500)
 
         # input_row = GridLayout(cols=2, padding=5, spacing=2.5, size_hint_y=None, height=50)
         # input_row.add_widget(self.input)
@@ -59,7 +68,6 @@ class TripyApp(App):
             btn = Button(text=NAME_BY_INDEX[key], size_hint_y=None, height=40)
             btn.bind(on_release=lambda btn: dropdown1.select(btn.text)) 
             dropdown1.add_widget(btn)
-
         self.start_button.bind(on_release=dropdown1.open)
         dropdown1.bind(on_select=lambda instance, x: setattr(self.start_button, 'text', x)) 
 
@@ -68,6 +76,9 @@ class TripyApp(App):
         btn.bind(on_release=lambda btn: dropdown2.select(btn.text)) 
         dropdown2.add_widget(btn)
         btn = Button(text="Better Investment", size_hint_y=None, height=40)
+        btn.bind(on_release=lambda btn: dropdown2.select(btn.text)) 
+        dropdown2.add_widget(btn)
+        btn = Button(text="Modified TSP", size_hint_y=None, height=40)
         btn.bind(on_release=lambda btn: dropdown2.select(btn.text)) 
         dropdown2.add_widget(btn)
         
@@ -81,17 +92,21 @@ class TripyApp(App):
 
         dropdown3 = DropDown()
         for key in NAME_BY_INDEX:
-            btn = Button(text=NAME_BY_INDEX[key], size_hint_y=None, height=40, on_press=self._country_on_click)
+            btn = Button(text=NAME_BY_INDEX[key], size_hint_y=None, height=40)
             btn.bind(on_release=lambda btn: dropdown3.select(btn.text)) 
             dropdown3.add_widget(btn)
-        country_button = Button(text="Country", size_hint_y=None, height=40, size_hint_x=None, width=500)
-        country_button.bind(on_release=dropdown3.open)
-        dropdown3.bind(on_select=lambda instance, x: setattr(country_button, 'text', x)) 
+        self.country_button.bind(on_release=dropdown3.open)
+        dropdown3.bind(on_select=lambda instance, x: setattr(self.country_button, 'text', x)) 
+        show_graph_button = Button(text="Show Graph", size_hint_y=None, height=40, size_hint_x=None, width=500, on_press=self._country_on_click)
 
-        left_bot.add_widget(country_button)
+        left_mid.add_widget(self.scroll1)
+
+        left_bot.add_widget(self.country_button)
         left_bot.add_widget(self.scroll)
+        left_bot.add_widget(show_graph_button)
 
         left.add_widget(left_top)
+        left.add_widget(left_mid)
         left.add_widget(left_bot)
 
         root.add_widget(left)
@@ -117,6 +132,7 @@ class TripyApp(App):
 
     def _on_click(self, instance) -> None:
         path = ""
+        self.probability_view.clear_widgets()
         if self.option_button.text == "Least Distance travelled":
             m = distance.adjacency_matrix()
             solver = DpTspSolver(m, start=INDEX_BY_NAME[self.start_button.text])
@@ -132,15 +148,33 @@ class TripyApp(App):
             for i in route:
                 path += NAME_BY_INDEX[i] + ","
 
+        elif self.option_button.text == "Modified TSP":
+            m = distance.adjacency_matrix()
+            scores = SENTIMENT
+            solver = ModifiedTspSolver(m, scores, start=INDEX_BY_NAME[self.start_button.text])
+            route = solver.best_route()
+            routes = solver.all_route()
+            # lists = sorted(routes.items(), reverse=True)
+            # y, x = zip(*lists)
+            # x1 = list(x)
+            # for i in range(len(x1)):
+            #     for j in range(len(x1[i])):
+            #         for k in range(len(x1[i][j])):
+            #             x1[i][j][k] = NAME_BY_INDEX[x[i][j][k]]
+            graph = probability_distribution(routes)
+            self.probability_view.add_widget(FigureCanvasKivyAgg(graph.plot_graph(0.35)))
+            print("Routes: ", routes)
+            for i in route:
+                path += i+ ","
 
+        
         print(path)
         self.map_view.set_path(path)
 
     def _country_on_click(self, instance):
-        graph1= graph(instance.text)
+        graph1= graph(self.country_button.text)
         self.graph_view.clear_widgets()
-        graph_canvas = FigureCanvasKivyAgg(graph1.plot_all_graph(0.35))
-        self.graph_view.add_widget(graph_canvas)
+        self.graph_view.add_widget(FigureCanvasKivyAgg(graph1.plot_all_graph(0.35)))
 
 
 
