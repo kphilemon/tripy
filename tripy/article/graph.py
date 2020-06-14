@@ -1,11 +1,49 @@
 #import plotly.graph_objects as go
 from tripy.article.article import ALL_ARTICLES
-from tripy.geo.locations import INDEX_BY_NAME
+from tripy.geo.locations import INDEX_BY_NAME, NAME_BY_INDEX
 import numpy as np 
 import matplotlib.pyplot as plt
 import json
 import os
 
+class probability_distribution:
+    def __init__(self, routes):
+        self._routes = routes
+
+    def plot_graph(self, width):
+        plt.clf()
+        n = len(self._routes)
+        lists = sorted(self._routes.items())
+        y, x = zip(*lists)
+        total_cost = sum(y)
+        y = [total_cost - i for i in y]
+        total2 = sum(y)
+        print("Distance: ", y)
+        y = [self.calculate_probability(total2, i) for i in y]
+        print("Probability: ",y)
+        x1 = list(x)
+        for i in range(len(x1)):
+            for j in range(len(x1[i])):
+                for k in range(len(x1[i][j])):
+                    x1[i][j][k] = NAME_BY_INDEX[x[i][j][k]]
+                x1[i][j] = '\n'.join(x1[i][j])
+            x1[i] = ','.join(x1[i])
+        index  = np.arange(n)
+        plt.subplot(1,1,1)
+        plt.bar(index, y)
+        plt.ylabel("Probability")
+        scale_factor = 0.2
+        ymin, ymax = plt.ylim()
+        plt.ylim(min(y) - 0.1, ymax)
+        plt.title("Probability Distribution of All Path")
+        plt.xticks(index+width/2, x1)
+        plt.legend(loc='best')
+        plt.tight_layout()
+        #plt.savefig('figure/'+self._country+'_pos_neg.svg')
+        return plt.gcf()
+        
+    def calculate_probability(self,total, cost):
+        return cost / total
 
 class graph:
     def __init__(self, country):
@@ -34,8 +72,8 @@ class graph:
         n = len(self._articles)
         index  = np.arange(n)
         plt.subplot(1,3,1)
-        plt.bar(index, self._pos_words, width, label="Positive Word Count")
-        plt.bar(index + width, self._neg_words, width, label="Negative Word Count")
+        plt.bar(index, self._pos_words, width, label="Positive Word Count", color='green')
+        plt.bar(index + width, self._neg_words, width, label="Negative Word Count", color='red')
         plt.ylabel("Word", fontsize=9)
         plt.title("Number of Positive and Negative Word", fontsize=9)
         plt.xticks(index+width/2, index)
@@ -65,6 +103,8 @@ class graph:
         plt.title("Total type of words in "+self._country+" article", fontsize=9)
         plt.suptitle(self._country+" article", fontsize=12)
         plt.legend(loc='best')
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.85)
 
         return plt.gcf()
 
@@ -79,6 +119,7 @@ class graph:
         plt.title("Number of Positive and Negative Word in "+self._country+" article")
         plt.xticks(index+width/2, index)
         plt.legend(loc='best')
+        plt.tight_layout()
         #plt.savefig('figure/'+self._country+'_pos_neg.svg')
         return plt.gcf()
 
@@ -95,6 +136,7 @@ class graph:
         plt.title("Number of Stop Word in "+self._country+" article")
         plt.xticks(index+width/2, ('1','2','3','4','5'))
         plt.legend(loc='best')
+        plt.tight_layout()
         #plt.savefig('figure/'+self._country+'_stop.svg')
         return plt.gcf()
 
@@ -115,6 +157,7 @@ class graph:
         plt.title("Total type of words in "+self._country+" article")
         plt.xticks([])
         plt.legend(loc='best')
+        plt.tight_layout()
         #plt.savefig('figure/'+self._country+'_overall.svg')
         return plt.gcf()
 

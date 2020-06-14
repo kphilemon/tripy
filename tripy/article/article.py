@@ -3,25 +3,9 @@ from bs4 import BeautifulSoup
 import re
 import json
 import os
-
+from tripy.algorithms.rabinkarp import RabinKarp
 
 #from nltk import ngrams
-
-class RabinKarp:
-	def __init__(self, text, n):
-		self._text = text 
-		self._hash = 0
-		self._n = n
-
-		for i in range(0, n-1):
-			self._hash =(256 * self._hash + ord(self._text[i]))%101
-
-		self._start = 0
-		self._end = n 
-
-	def window_text(self):
-		return self._text[self._start:self._end]
-
 class country_article:
 	def __init__(self):
 		self.all_articles = {0: []}
@@ -98,7 +82,7 @@ class article:
 	    return text
 
 	def get_sentiment_score(self):
-		return (self._pos_freq/self.get_total_word()) * 100
+		return (((self._pos_freq - self._neg_freq / self.get_total_word())+ 1 ) * 1 / 2)
 
 	def get_stopword_freq(self):
 		return len(self._words.split()) - len(self._cleanWords)
