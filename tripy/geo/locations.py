@@ -8,7 +8,7 @@ BEIJING = 6
 SEOUL = 7
 
 INDEX_BY_NAME = {
-    'Kuala Lumpur': KUALA_LUMPUR,
+    'KualaLumpur': KUALA_LUMPUR,
     'Jakarta': JAKARTA,
     'Bangkok': BANGKOK,
     'Taipei': TAIPEI,
@@ -19,7 +19,7 @@ INDEX_BY_NAME = {
 }
 
 NAME_BY_INDEX = {
-    KUALA_LUMPUR: 'Kuala Lumpur',
+    KUALA_LUMPUR: 'KualaLumpur',
     JAKARTA: 'Jakarta',
     BANGKOK: 'Bangkok',
     TAIPEI: 'Taipei',

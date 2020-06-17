@@ -20,8 +20,6 @@ from tripy.widgets.mapview import MapView
 class TripyApp(App):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        # self.btn = Button(text='Plot Line', size_hint_x=None, width=100)
-        # self.input = TextInput(multiline=False, font_size=18)
         self.map_view = MapView()
         self.start_button = Button(text="Starting Point", size_hint_y=None, height=40)
         self.scroll = ScrollView(size_hint=(None, 1), width=500)
@@ -33,35 +31,20 @@ class TripyApp(App):
         self.scroll.do_scroll_x=True
         self.scroll.do_scroll_y=False
         self.button = BoxLayout(orientation='vertical')
-
         self.scroll1 = ScrollView(size_hint=(None, 1), width=500)
         self.probability_view = BoxLayout(orientation='vertical', size_hint_x=None, width=1000)
         self.probability_view.bind(minimum_width=self.graph_view.setter('width'))
         self.scroll1.add_widget(self.probability_view)
         self.scroll1.do_scroll_x=True
         self.scroll1.do_scroll_y=False
-        # self.btnMY = Button(text='Malaysia', size_hint_x=None, width=100)
-        # self.btnCN = Button(text='Beijing', size_hint_x=None, width=100, on_press=self._country_on_click)
-        # self.btnHK = Button(text='Hong Kong', size_hint_x=None, width=100, on_press=self._country_on_click)
-        # self.btnID = Button(text='Jakarta', size_hint_x=None, width=100, on_press=self._country_on_click)
-        # self.btnJP = Button(text='Tokyo', size_hint_x=None, width=100, on_press=self._country_on_click)
-        # self.btnKR = Button(text='Seoul', size_hint_x=None, width=100, on_press=self._country_on_click)
-        # self.btnTH = Button(text='Bangkok', size_hint_x=None, width=100, on_press=self._country_on_click)
-        # self.btnTW = Button(text='Taipei', size_hint_x=None, width=100, on_press=self._country_on_click)
 
     def build(self) -> Widget:
         root = BoxLayout(orientation='horizontal')
         left_top = GridLayout(cols=1, rows=3, size_hint_x=None, width=500, size_hint_y=None, height=120)
         left_mid = GridLayout(cols=1, rows=3, size_hint_x=None, width=500)
         left_bot = GridLayout(cols=1, rows=3, size_hint_x=None, width=500)
-        left = BoxLayout(orientation='vertical', width=500)
+        left = BoxLayout(orientation='vertical', size_hint_x=None, width=500)
 
-        # input_row = GridLayout(cols=2, padding=5, spacing=2.5, size_hint_y=None, height=50)
-        # input_row.add_widget(self.input)
-        # input_row.add_widget(self.btn)
-
-        # root.add_widget(input_row)
-        # root.add_widget(self.map_view)
 
         dropdown1 = DropDown()
         for key in NAME_BY_INDEX:
@@ -112,22 +95,6 @@ class TripyApp(App):
         root.add_widget(left)
         root.add_widget(self.map_view)
 
-        # country_button = GridLayout(cols=4, padding=5, spacing=2.5, size_hint_y=None, height=50)
-        # country_button.add_widget(self.btnCN)
-        # country_button.add_widget(self.btnHK)
-        # country_button.add_widget(self.btnID)
-        # country_button.add_widget(self.btnJP)
-        # country_button1 = GridLayout(cols=3, padding=5, spacing=2.5, size_hint_y=None, height=50)
-        # country_button1.add_widget(self.btnKR)
-        # country_button1.add_widget(self.btnTH)
-        # country_button1.add_widget(self.btnTW)
-        # self.button.add_widget(country_button)
-        # self.button.add_widget(country_button1)
-        # self.graph_view.add_widget(self.button)
-        # root.add_widget(self.graph_view)
-        
-        # self.btn.bind(on_press=self._on_click)
-
         return root
 
     def _on_click(self, instance) -> None:
@@ -154,20 +121,12 @@ class TripyApp(App):
             solver = ModifiedTspSolver(m, scores, start=INDEX_BY_NAME[self.start_button.text])
             route = solver.best_route()
             routes = solver.all_route()
-            # lists = sorted(routes.items(), reverse=True)
-            # y, x = zip(*lists)
-            # x1 = list(x)
-            # for i in range(len(x1)):
-            #     for j in range(len(x1[i])):
-            #         for k in range(len(x1[i][j])):
-            #             x1[i][j][k] = NAME_BY_INDEX[x[i][j][k]]
             graph = probability_distribution(routes)
             self.probability_view.add_widget(FigureCanvasKivyAgg(graph.plot_graph(0.35)))
             print("Routes: ", routes)
             for i in route:
                 path += i+ ","
 
-        
         print(path)
         self.map_view.set_path(path)
 

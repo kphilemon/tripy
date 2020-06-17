@@ -80,6 +80,7 @@ class ModifiedTspSolver(TspSolver):
             else:
                 self._routes[cost] = [route]
             return
+        #Get the nearest node from current node
         shortest_distance = inf
         nearestNode = 0
         for m in range(len(nodes)):
@@ -91,7 +92,7 @@ class ModifiedTspSolver(TspSolver):
             if nodes[n] == nearest:
                 self._tsp(route=route + [nodes[n]], nodes=nodes[:n] + nodes[n + 1:],
                               cost=cost + self._matrix[route[-1]][nodes[n]])
-
+            #if distance between node n and nearest node from current node, and sentiment score different more than 0.02
             if self._matrix[route[-1]][nodes[n]] - shortest_distance <= shortest_distance * 0.4:
                 if self._score[nodes[n]] -self._score[nearest] >= 0.02:
                     self._tsp(route=route + [nodes[n]], nodes=nodes[:n] + nodes[n + 1:],
