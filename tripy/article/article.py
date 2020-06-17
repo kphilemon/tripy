@@ -5,39 +5,37 @@ import json
 import os
 from tripy.algorithms.rabinkarp import RabinKarp
 
-#from nltk import ngrams
 class country_article:
 	def __init__(self):
-		self.all_articles = {0: []}
-		self.all_country = ["Jakarta", "Bangkok", "Taipei", "HongKong", "Tokyo", "Beijing", "Seoul"]
-		articles = [[] for x in self.all_country]
+		self._all_articles = {}
+		self._all_country = ["KualaLumpur","Jakarta", "Bangkok", "Taipei", "HongKong", "Tokyo", "Beijing", "Seoul"]
+		articles = [ [] for x in self._all_country]
 
-		#with open("../assets/countryLink.json") as json_file:
+		#Read links from json file
 		with open(os.getcwd() + f'{os.sep}tripy{os.sep}assets{os.sep}countryLink.json') as json_file:
 			self._links = json.load(json_file)
-		for i in range(len(self.all_country)):
+
+		#Store all articles into dict
+		for i in range(len(self._all_country)):
 			k = 0
-			print("-Reading article: "+ self.all_country[i]+ "......")
-			for j in self._links[self.all_country[i]]:
-				articles[i].append(article(j,self.all_country[i],k))
+			print("-Reading article: "+ self._all_country[i]+ "......")
+			for j in self._links[self._all_country[i]]:
+				articles[i].append(article(j,self._all_country[i],k))
 				k+=1
-			self.all_articles[i+1] = articles[i]
+			self._all_articles[i] = articles[i]
 
 	def get_all_articles(self):
-		return self.all_articles
+		return self._all_articles
 
+	#Get sentiment score for all articles
 	def get_sentiment(self):
 		sentiment = {}
-		for key in self.all_articles:
+		for key in self._all_articles:
 			score = 0;
-			if len(self.all_articles[key]) == 0:
-				sentiment[key] = score
-				continue
-			for i in range (len(self.all_articles[key])):
-				score += (self.all_articles[key])[i].get_sentiment_score()
-			score = score/len(self.all_articles[key])
+			for i in range (len(self._all_articles[key])):
+				score += (self._all_articles[key])[i].get_sentiment_score()
+			score = score/len(self._all_articles[key])
 			sentiment[key] = score
-
 		return sentiment
 
 class article:
@@ -52,35 +50,34 @@ class article:
 		self._i = i
 		self._cleanWords = self.get_clean_words()
 
-		# self.twograms = ngrams(self.cleanWords, 2)
-		# for grams in self.twograms:
-		# 	print(grams)
+		#If this article already read before, then straight use the data from json file, else read the article
 		try:
-			#"../assets/countryLink.json"
-			#with open("../assets/datas/"+self._country +'article' + str(self._i) +'.json') as json_file:
 			with open(os.getcwd() + f"{os.sep}tripy{os.sep}assets{os.sep}datas{os.sep}"+self._country +'article' + str(self._i) +'.json') as json_file:
 				self._data = json.load(json_file)
 				json_file.close()
 			self._pos_freq = self._data['Positive']
 			self._neg_freq = self._data['Negative']
 		except:
+			self.calculate_words()
 			pass
 
 	def readUrl(self, url):
+		#Read html
 	    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.3'}
 	    reg_url = url
 	    req = urllib.request.Request(url=reg_url, headers=headers)
 	    html = urllib.request.urlopen(req).read()
+	    #Get String Text from html without html tag
 	    soup = BeautifulSoup(html, features="lxml")
 	    for script in soup(["script", "style"]):
 	        script.extract()
-
 	    text = soup.get_text().lower()
 	    lines = (line.strip() for line in text.splitlines())
 	    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
 	    text = '\n'.join(chunk for chunk in chunks if chunk)
 	    return text
 
+	# Sentiment score = ( Positive % - Negative % + 100 ) / 200
 	def get_sentiment_score(self):
 		return (((self._pos_freq - self._neg_freq / self.get_total_word())+ 1 ) * 1 / 2)
 
@@ -96,23 +93,28 @@ class article:
 	def get_neg_freq(self):
 		return self._neg_freq
 
+	#Get a String text with stop words without symbols 
 	def get_clean_text(self):
 		regex = re.compile(r'[^a-zA-Z+-+\s]+')
 		cleanText = re.sub(regex, '', self._words)
 		return cleanText
 
+	#Get a wordlist without stopword
 	def get_clean_words(self):
 		regex = re.compile(r'[^a-zA-Z+-+\s]+')
 		cleanWords = re.sub(regex, '', self._words).split()
 		cleanWords = self.remove_stop_words(cleanWords)
 		return cleanWords
 
+	#Remove stop words from list of words
 	def remove_stop_words(self, list):
 		stopwords = []
-		#file = open("../assets/wordlists/stopword.txt", "r", encoding='utf-8')
+		#Read stop word list
 		file = open(os.getcwd() + f"{os.sep}tripy{os.sep}assets{os.sep}wordlists{os.sep}stopword.txt", "r", encoding='utf-8')
 		stopwords = file.read().splitlines()
 		file.close()
+
+		#Find stop word and remove it 
 		for i in stopwords:
 			if self.rabin_karp(i, list) == True:
 				list.remove(i)
@@ -130,60 +132,35 @@ class article:
 						return True
 		return False
 
+	#Calculate Positive,Negative words and store into json file
 	def calculate_words(self):
 		self._data = {}
+		#Read positive word list
 		file = open(os.getcwd() + f"{os.sep}tripy{os.sep}assets{os.sep}wordlists{os.sep}positiveword.txt", "r", encoding='utf-8')
 		pos_words = set(file.read().splitlines())
 		file.close()
 
+		#Read negative word list
 		file = open(os.getcwd() + f"{os.sep}tripy{os.sep}assets{os.sep}wordlists{os.sep}negativeword.txt", "r", encoding='utf-8')
 		neg_words = set(file.read().splitlines())
 		file.close()
 
+		#search for positive and negative words
 		for i in self._cleanWords:
 			if i in pos_words:
 				self._pos_freq += 1
 			elif i in neg_words:
 				self._neg_freq +=1
 
-		self._data['Stop'] = self.getStopWordTotal()
+		#Store data into dict and save as a json file
+		self._data['Stop'] = self.get_stopword_freq()
 		self._data['Positive'] = self._pos_freq
 		self._data['Negative'] = self._neg_freq
 		with open(os.getcwd() + f"{os.sep}tripy{os.sep}assets{os.sep}datas{os.sep}"+self._country +'article' + str(self._i) +'.json', 'w') as outfile:
 			json.dump(self._data, outfile)
 			outfile.close()
 
+#Get all articles
 ARTICLES = country_article()
 ALL_ARTICLES = ARTICLES.get_all_articles()
 SENTIMENT = ARTICLES.get_sentiment()
-# if __name__ == "__main__":
-# 	articles = set()
-# 	clist = ["Jakarta", "Bangkok", "Taipei", "HongKong", "Tokyo", "Beijing", "Seoul"]
-# 	j = 0
-# 	for i in links.Taipei:
-# 		articles.add(article(i, "Taipei", j).calculateWords())
-# 		j+=1
-# 	j = 0
-# 	for i in links.HongKong:
-# 		articles.add(article(i, "HongKong", j).calculateWords())
-# 		j+=1
-# 	j = 0
-# 	for i in links.Tokyo:
-# 		articles.add(article(i, "Tokyo", j).calculateWords())
-# 		j+=1
-# 	j = 0
-# 	for i in links.Beijing:
-# 		articles.add(article(i, "Beijing", j).calculateWords())
-# 		j+=1
-# 	j = 0
-# 	for i in links.Seoul:
-# 		articles.add(article(i, "Seoul", j).calculateWords())
-# 		j+=1
-# 	j = 0
-# 	for i in links.Jakarta:
-# 		articles.add(article(i, "Jakarta", j).calculateWords())
-# 		j+=1
-# 	j = 0
-# 	for i in links.Bangkok:
-# 		articles.add(article(i, "Bangkok", j).calculateWords())
-# 		j+=1

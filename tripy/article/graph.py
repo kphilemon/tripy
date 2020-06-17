@@ -1,4 +1,3 @@
-#import plotly.graph_objects as go
 from tripy.article.article import ALL_ARTICLES
 from tripy.geo.locations import INDEX_BY_NAME, NAME_BY_INDEX
 import numpy as np 
@@ -14,13 +13,16 @@ class probability_distribution:
         plt.clf()
         n = len(self._routes)
         lists = sorted(self._routes.items())
+        #y = Cost, x =Country index
         y, x = zip(*lists)
         total_cost = sum(y)
+        print("Cost: ", y)
+        #Probabollity of a route = total cost - cost of route / summation of total cost - cost of route
         y = [total_cost - i for i in y]
         total2 = sum(y)
-        print("Distance: ", y)
         y = [self.calculate_probability(total2, i) for i in y]
         print("Probability: ",y)
+        #Convert country index to name
         x1 = list(x)
         for i in range(len(x1)):
             for j in range(len(x1[i])):
@@ -28,6 +30,8 @@ class probability_distribution:
                     x1[i][j][k] = NAME_BY_INDEX[x[i][j][k]]
                 x1[i][j] = '\n'.join(x1[i][j])
             x1[i] = ','.join(x1[i])
+
+        #Plot Graph of probability distribution
         index  = np.arange(n)
         plt.subplot(1,1,1)
         plt.bar(index, y)
@@ -39,7 +43,6 @@ class probability_distribution:
         plt.xticks(index+width/2, x1)
         plt.legend(loc='best')
         plt.tight_layout()
-        #plt.savefig('figure/'+self._country+'_pos_neg.svg')
         return plt.gcf()
         
     def calculate_probability(self,total, cost):
@@ -104,6 +107,7 @@ class graph:
         plt.suptitle(self._country+" article", fontsize=12)
         plt.legend(loc='best')
         plt.tight_layout()
+        #prevent main title overlap with graph title
         plt.subplots_adjust(top=0.85)
 
         return plt.gcf()
@@ -120,7 +124,6 @@ class graph:
         plt.xticks(index+width/2, index)
         plt.legend(loc='best')
         plt.tight_layout()
-        #plt.savefig('figure/'+self._country+'_pos_neg.svg')
         return plt.gcf()
 
     def plot_stop_words(self, width):
@@ -137,7 +140,6 @@ class graph:
         plt.xticks(index+width/2, ('1','2','3','4','5'))
         plt.legend(loc='best')
         plt.tight_layout()
-        #plt.savefig('figure/'+self._country+'_stop.svg')
         return plt.gcf()
 
     def plot_overall(self, width):
@@ -158,11 +160,5 @@ class graph:
         plt.xticks([])
         plt.legend(loc='best')
         plt.tight_layout()
-        #plt.savefig('figure/'+self._country+'_overall.svg')
         return plt.gcf()
 
-# if __name__ == "__main__":
-#     graph1 = graph("Bangkok")
-#     graph2 = graph("Jakarta")
-#     plt.show(graph1.plot_all_graph(0.35))
-#     plt.show(graph2.plot_all_graph(0.35))

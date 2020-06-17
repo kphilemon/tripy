@@ -1,4 +1,10 @@
-{"Jakarta" : ["https://www.bangkokpost.com/business/1840704/kbank-baht-to-rise-throughout-2020",
+{"KualaLumpur" : ["https://www.channelnewsasia.com/news/asia/malaysia-economy-could-shrink-more-than-earlier-forecast-covid19-12697044",
+                "https://www.nst.com.my/business/2020/03/570879/malaysias-2020-economic-growth-be-tale-two-halves-analysts",
+                "https://www.nst.com.my/business/2020/04/580946/malaysias-2020-gdp-grow-between-20pct-and-05pct",
+                "https://www.theedgemarkets.com/article/bnm-annual-report-2019-malaysias-2020-gdp-growth-projected-between-2-and-05",
+                "https://www.theedgemarkets.com/article/malaysia-gdp-growth-slow-43-2020-%E2%80%94-marc"],
+
+  "Jakarta" : ["https://www.bangkokpost.com/business/1840704/kbank-baht-to-rise-throughout-2020",
            "https://www.straitstimes.com/business/economy/indonesia-slashes-growth-forecast-by-more-than-half-on-coronavirus",
            "https://www.straitstimes.com/asia/maintaining-liquidity-amid-covid-19-crisis-jakarta-post-contributor",
            "https://thediplomat.com/2020/01/indonesia-in-2020-a-year-of-change-or-stagnation-under-jokowi/",
@@ -31,7 +37,8 @@
 "Beijing" : ["https://www.cnbc.com/2020/03/24/china-beige-book-q1-contraction-in-chinas-economy-from-coronavirus.html",
          "https://www.cnbc.com/2020/03/16/china-economy-millions-lose-their-jobs-as-unemployment-spikes.html",
          "https://qz.com/1839062/china-gdp-contracts-6-8-percent-in-first-quarter-due-to-coronavirus/",
-         "https://www.wsj.com/articles/china-set-to-report-plunge-in-first-quarter-gdp-11587086697"],
+         "https://www.wsj.com/articles/china-set-to-report-plunge-in-first-quarter-gdp-11587086697", 
+         "https://www.cnbc.com/2020/04/17/china-economy-beijing-contracted-in-q1-2020-gdp-amid-coronavirus.html"],
 
 "Seoul" : ["https://www.thestar.com.my/news/regional/2020/01/27/south-korean-economy-may-pull-of-slower-than-expected-growth-in-2020",
        "https://thediplomat.com/2020/03/south-korea-braces-for-global-recession/",
