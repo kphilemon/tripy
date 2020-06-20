@@ -1,27 +1,51 @@
-from tripy.article.article import ALL_ARTICLES
+from tripy.article.article import ALL_ARTICLES, SENTIMENT
 from tripy.geo.locations import INDEX_BY_NAME, NAME_BY_INDEX
 import numpy as np 
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('module://kivy.garden.matplotlib.backend_kivy')
+from matplotlib import pyplot as plt
 import json
 import os
+class Sentiment_graph:
+    def __init__(self):
+        self.sentiment = SENTIMENT
 
-class probability_distribution:
+    def plot_graph(self,width):
+        plt.clf()
+        n = len(self.sentiment)
+        x, y = zip(*self.sentiment.items())
+        x1 = list(x)
+        for i in range(len(x)):
+            x1[i] = NAME_BY_INDEX[x[i]]
+
+        index  = np.arange(n)
+        plt.subplot(1,1,1)
+        plt.bar(index, y)
+        plt.ylabel("Sentiment Score")
+        
+        plt.ylim(min(y)-1, max(y)+1)
+        plt.title("Sentiment Score of All Country")
+        plt.xticks(index+width/2, x1)
+        plt.legend(loc='best')
+        plt.tight_layout()
+        return plt.gcf()
+
+
+
+class Probability_distribution:
     def __init__(self, routes):
         self._routes = routes
+
 
     def plot_graph(self, width):
         plt.clf()
         n = len(self._routes)
-        lists = sorted(self._routes.items())
+        lists = sorted(self._routes.items(), reverse=True)
         #y = Cost, x =Country index
         y, x = zip(*lists)
-        total_cost = sum(y)
-        print("Cost: ", y)
-        #Probabollity of a route = total cost - cost of route / summation of total cost - cost of route
-        y = [total_cost - i for i in y]
-        total2 = sum(y)
-        y = [self.calculate_probability(total2, i) for i in y]
-        print("Probability: ",y)
+        total_score = sum(y)
+
+        y = [i/total_score for i in y]
         #Convert country index to name
         x1 = list(x)
         for i in range(len(x1)):
@@ -36,7 +60,6 @@ class probability_distribution:
         plt.subplot(1,1,1)
         plt.bar(index, y)
         plt.ylabel("Probability")
-        scale_factor = 0.2
         ymin, ymax = plt.ylim()
         plt.ylim(min(y) - 0.1, ymax)
         plt.title("Probability Distribution of All Path")
@@ -45,10 +68,8 @@ class probability_distribution:
         plt.tight_layout()
         return plt.gcf()
         
-    def calculate_probability(self,total, cost):
-        return cost / total
 
-class graph:
+class Graph:
     def __init__(self, country):
         self._articles = ALL_ARTICLES[INDEX_BY_NAME[country]]
         self._total_words = []
@@ -70,6 +91,7 @@ class graph:
             self._neg_words.append(self._articles[i].get_neg_freq())
             self._total_neg_word += self._neg_words[i]
 
+    #O(n) n=number of article
     def plot_all_graph(self, width):
         plt.clf()
         n = len(self._articles)
@@ -109,7 +131,6 @@ class graph:
         plt.tight_layout()
         #prevent main title overlap with graph title
         plt.subplots_adjust(top=0.85)
-
         return plt.gcf()
 
     def plot_pos_neg(self, width):

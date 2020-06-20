@@ -35,6 +35,7 @@ class TspSolver:
     def best_route(self) -> List[int]:
         raise NotImplementedError('Best route method not implemented!')
 
+
 class ModifiedTspSolver(TspSolver):
 
     def __init__(self, adjacency_matrix: List[List[float]], score, start: int = 0) -> None:
@@ -49,13 +50,13 @@ class ModifiedTspSolver(TspSolver):
         self._solve()
         return self._routes
 
-    def min_cost(self) -> float:
+    def max_score(self) -> float:
         self._solve()
-        return min(self._routes)
+        return max(self._routes)
 
     def best_route(self) -> List[int]:
         self._solve()
-        return self._routes[self.min_cost()][0]
+        return self._routes[self.max_score()][0]
 
     def _solve(self) -> None:
         if self._solved:
@@ -67,10 +68,46 @@ class ModifiedTspSolver(TspSolver):
         route = [self._start]
         nodes = [x for x in range(self._N) if x != self._start]
         self._tsp(route, nodes, 0)
+        self._routes=self._score_calculation()
 
         # prevent re-execute
         self._solved = True
 
+    def _score_calculation(self):
+        route_modified_score = {}
+        y, x = zip(*self._routes.items())
+        total_distance = sum(y)
+        y = [total_distance - i for i in y]
+        total_total_distance = sum(y)
+        total_score = 0
+        for key in self._routes:
+            for i in self._routes[key]:
+                n = 5**len(self._matrix)
+                score = 0
+                for j in i:
+                    score += self._score[j] * n
+                    n /= 5
+                total_score += score
+
+        if len(self._routes) == 1:
+            route_modified_score = self._routes
+        else:
+            for key in self._routes:
+                for i in self._routes[key]:
+                    n = 5**len(self._matrix)
+                    score = 0
+                    for j in i:
+                        score += self._score[j] * n
+                        n /= 5
+                    print("-----------------------score: ", score/total_score, "\n----------------------distance: ",(total_distance - key)/total_total_distance)
+                    score =(score/total_score) + ((total_distance - key)/total_total_distance)
+                    print("-----------------------combined: ", score)
+                    if score in route_modified_score:
+                        route_modified_score[score].append(i)
+                    else:
+                        route_modified_score[score] = [i]
+        return route_modified_score
+        
     # route param requires a list with starting node in it, else it will give key error
     def _tsp(self, route: List[int], nodes: List[int], cost: float) -> None:
         if len(nodes) == 0:
@@ -82,11 +119,17 @@ class ModifiedTspSolver(TspSolver):
             return
         #Get the nearest node from current node
         shortest_distance = inf
+        furthest_distance = 0
         nearestNode = 0
+        highestScore = 0
         for m in range(len(nodes)):
             if self._matrix[route[-1]][nodes[m]] < shortest_distance:
                 shortest_distance = self._matrix[route[-1]][nodes[m]]
                 nearest = nodes[m]
+            if self._score[nodes[m]] > highestScore:
+                highestScore = self._score[nodes[m]]
+            if self._matrix[route[-1]][nodes[m]] > furthest_distance:
+                furthest_distance = self._matrix[route[-1]][nodes[m]]
 
         for n in range(len(nodes)):
             if nodes[n] == nearest:
@@ -94,10 +137,9 @@ class ModifiedTspSolver(TspSolver):
                               cost=cost + self._matrix[route[-1]][nodes[n]])
             #if distance between node n and nearest node from current node, and sentiment score different more than 0.02
             if self._matrix[route[-1]][nodes[n]] - shortest_distance <= shortest_distance * 0.4:
-                if self._score[nodes[n]] -self._score[nearest] >= 0.02:
+                if self._score[nodes[n]] - self._score[nearest]  >= 0.02:
                     self._tsp(route=route + [nodes[n]], nodes=nodes[:n] + nodes[n + 1:],
-                              cost=cost + (self._matrix[route[-1]][nodes[n]] - self._score[nodes[n]]))
-
+                              cost=cost + self._matrix[route[-1]][nodes[n]])
 
 class NaiveTspSolver(TspSolver):
 
