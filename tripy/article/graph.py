@@ -2,7 +2,7 @@ from tripy.article.article import ALL_ARTICLES, SENTIMENT
 from tripy.geo.locations import INDEX_BY_NAME, NAME_BY_INDEX
 import numpy as np 
 import matplotlib
-matplotlib.use('module://kivy.garden.matplotlib.backend_kivy')
+#matplotlib.use('module://kivy.garden.matplotlib.backend_kivy')
 from matplotlib import pyplot as plt
 import json
 import os
