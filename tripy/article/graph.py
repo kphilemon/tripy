@@ -47,7 +47,7 @@ class Probability_distribution:
             for j in range(len(x1[i])):
                 for k in range(len(x1[i][j])):
                     x1[i][j][k] = NAME_BY_INDEX[x[i][j][k]]
-                x1[i][j] = '\n'.join(x1[i][j])
+                x1[i][j] = '<br>'.join(x1[i][j])
             x1[i] = ','.join(x1[i])
 
         fig = go.Figure(data=[

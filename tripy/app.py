@@ -11,8 +11,8 @@ from kivy.config import Config
 #from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 from tripy.article.article import SENTIMENT
 from tripy.article.graph import Graph, Probability_distribution, Sentiment_graph
-from tripy.algorithms.nn import NearestNeighbourSolver
-from tripy.algorithms.tsp import DpTspSolver, ModifiedTspSolver
+from tripy.algorithms.nn import NearestNeighbourSolver, ModifiedNearestNeighbourSolver
+from tripy.algorithms.tsp import DpTspSolver
 import tripy.geo.distance as distance
 from tripy.geo.locations import NAME_BY_INDEX, INDEX_BY_NAME
 from tripy.widgets.mapview import MapView
@@ -133,7 +133,7 @@ class TripyApp(App):
         elif self.option_button.text == "Optimum Route":
             m = distance.adjacency_matrix()
             scores = SENTIMENT
-            solver = ModifiedTspSolver(m, scores, start=INDEX_BY_NAME[self.start_button.text])
+            solver = ModifiedNearestNeighbourSolver(m, scores, start=INDEX_BY_NAME[self.start_button.text])
             route = solver.best_route()
             routes = solver.all_route()
             graph = Probability_distribution(routes, self.start_button.text).plot_graph()
