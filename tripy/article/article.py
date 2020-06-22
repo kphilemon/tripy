@@ -48,8 +48,9 @@ class Article:
 		self._pos_freq = 0
 		self._data = None
 		self._stopword_frequency = 0
-		self._cleanWords = self.get_clean_words()
-		self.calculate_words()
+		#self._cleanWords = self.get_clean_words()
+		self._cleanWords_string = self.get_clean_text()
+		self.calculate_words_string()
 
 
 	def readUrl(self, url):
@@ -78,10 +79,10 @@ class Article:
 
 	# Sentiment score = ( Positive % - Negative % + 100 ) / 200
 	def get_sentiment_score(self):
-		return (((self._pos_freq - self._neg_freq) / len(self._cleanWords)) + 1 ) * 100/ 2
+		return (((self._pos_freq - self._neg_freq) / len(self._cleanWords_string.split())) + 1 ) * 100/ 2
 
 	def get_stopword_freq(self):
-		return len(self._words.split()) - len(self._cleanWords)
+		return len(self._words.split()) - len(self._cleanWords_string.split())
 
 	def get_total_word(self):
 		return len(self._words.split())
@@ -109,6 +110,20 @@ class Article:
 		cleanWords = self.remove_stop_words(cleanWords)
 		return cleanWords
 
+	def remove_stop_words_string(self, text):
+		stopwords = []
+		#Read stop word list
+		list = text.split()
+		file = open(os.getcwd() + f"{os.sep}tripy{os.sep}assets{os.sep}wordlists{os.sep}stopword.txt", "r", encoding='utf-8')
+		stopwords = file.read().splitlines()
+		file.close()
+
+		#Find stop word and remove it 
+		for i in stopwords:
+			if self.rabin_karp(i, list) == True:
+				list = [item for item in list if item != i]
+		text = " ".join(list)
+		return text
 
 	#Remove stop words from list of words
 	def remove_stop_words(self, list):
@@ -153,6 +168,23 @@ class Article:
 				self._pos_freq += 1
 			elif i in neg_words:
 				self._neg_freq +=1
+
+	def calculate_words_string(self):
+		#Read positive word list
+		file = open(os.getcwd() + f"{os.sep}tripy{os.sep}assets{os.sep}wordlists{os.sep}positiveword.txt", "r", encoding='utf-8')
+		pos_words = set(file.read().splitlines())
+		file.close()
+
+		#Read negative word list
+		file = open(os.getcwd() + f"{os.sep}tripy{os.sep}assets{os.sep}wordlists{os.sep}negativeword.txt", "r", encoding='utf-8')
+		neg_words = set(file.read().splitlines())
+		file.close()
+
+		#search for positive and negative words
+		for i in pos_words:
+			self._pos_freq += self._cleanWords_string.count(i)
+		for i in neg_words:
+			self._neg_freq += self._cleanWords_string.count(i)
 
 
 
