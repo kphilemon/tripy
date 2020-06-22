@@ -120,7 +120,7 @@ class ModifiedTspSolver(TspSolver):
         #Get the nearest node from current node
         shortest_distance = inf
         furthest_distance = 0
-        nearestNode = 0
+        nearest = 0
         highestScore = 0
         for m in range(len(nodes)):
             if self._matrix[route[-1]][nodes[m]] < shortest_distance:

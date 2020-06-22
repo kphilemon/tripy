@@ -78,7 +78,7 @@ class Article:
 
 	# Sentiment score = ( Positive % - Negative % + 100 ) / 200
 	def get_sentiment_score(self):
-		return ((((self._pos_freq - self._neg_freq) / self.get_total_word())+ 1 ) * 100/ 2) 
+		return (((self._pos_freq - self._neg_freq) / len(self._cleanWords)) + 1 ) * 100/ 2
 
 	def get_stopword_freq(self):
 		return len(self._words.split()) - len(self._cleanWords)
@@ -94,19 +94,21 @@ class Article:
 
 	#Get a String text with stop words without symbols 
 	def get_clean_text(self):
-		regex = re.compile(r'[^a-zA-Z+-+\s]')
+		regex = re.compile(r'[^a-zA-Z+-]+')
 		self._words= re.sub(r'\\.', ' ', self._words)
 		cleanText = re.sub(regex, ' ', self._words)
+		cleanText = self.remove_stop_words_string(cleanText)
 		return cleanText
 
 	#Get a wordlist without stopword
 	def get_clean_words(self):
 
-		regex = re.compile(r'[^a-zA-Z+-+\s]+')
+		regex = re.compile(r'[^a-zA-Z+-]+')
 		self._words= re.sub(r'\\.', ' ', self._words)
 		cleanWords = re.sub(regex, ' ', self._words).split()
 		cleanWords = self.remove_stop_words(cleanWords)
 		return cleanWords
+
 
 	#Remove stop words from list of words
 	def remove_stop_words(self, list):
@@ -119,7 +121,7 @@ class Article:
 		#Find stop word and remove it 
 		for i in stopwords:
 			if self.rabin_karp(i, list) == True:
-				list.remove(i)
+				list = [item for item in list if item != i]
 		return list
 
 	def rabin_karp(self, pattern, list):
@@ -151,6 +153,8 @@ class Article:
 				self._pos_freq += 1
 			elif i in neg_words:
 				self._neg_freq +=1
+
+
 
 #Get all articles
 ARTICLES = Country_article()

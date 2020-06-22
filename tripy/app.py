@@ -8,7 +8,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.dropdown import DropDown
 from kivy.uix.scrollview import ScrollView
 from kivy.config import Config
-from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+#from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 from tripy.article.article import SENTIMENT
 from tripy.article.graph import Graph, Probability_distribution, Sentiment_graph
 from tripy.algorithms.nn import NearestNeighbourSolver
@@ -16,7 +16,9 @@ from tripy.algorithms.tsp import DpTspSolver, ModifiedTspSolver
 import tripy.geo.distance as distance
 from tripy.geo.locations import NAME_BY_INDEX, INDEX_BY_NAME
 from tripy.widgets.mapview import MapView
+from tripy.widgets.graphview import GraphView
 from threading import Thread
+
 
 
 class TripyApp(App):
@@ -26,18 +28,22 @@ class TripyApp(App):
         Config.write()
         super().__init__(**kwargs)
         self.map_view = MapView()
+        self.sentiment_view1 = GraphView("sentiment.html")
+        self.probability_view1 = GraphView("sentiment.html")
         self.start_button = Button(text="Starting Point", size_hint_y=None, height=40)
         self.scroll = ScrollView(size_hint=(None, 1), width=500)
         self.option_button = Button(text="Options", size_hint_y=None, height=40)
         self.country_button = Button(text="Country", size_hint_y=None, height=40, size_hint_x=None, width=500)
         self.graph_view = BoxLayout(orientation='vertical', size_hint_x=None, width=1000)
         self.graph_view.bind(minimum_width=self.graph_view.setter('width'))
+        self.graph_view.add_widget(self.sentiment_view1)
         self.scroll.add_widget(self.graph_view)
         self.scroll.do_scroll_x=True
         self.scroll.do_scroll_y=False
         self.scroll1 = ScrollView(size_hint=(None, 1), width=500)
-        self.probability_view = BoxLayout(orientation='vertical', size_hint_x=None, width=1000)
+        self.probability_view = BoxLayout(orientation='vertical', size_hint_x=None, width=800)
         self.probability_view.bind(minimum_width=self.probability_view.setter('width'))
+        self.probability_view.add_widget(self.probability_view1)
         self.scroll1.add_widget(self.probability_view)
         self.scroll1.do_scroll_x=True
         self.scroll1.do_scroll_y=False
@@ -108,7 +114,7 @@ class TripyApp(App):
 
     def _on_click(self, instance) -> None:
         path = ""
-        self.probability_view.clear_widgets()
+        #self.probability_view.clear_widgets()
         if self.option_button.text == "Least Distance travelled":
             m = distance.adjacency_matrix()
             solver = DpTspSolver(m, start=INDEX_BY_NAME[self.start_button.text])
@@ -130,8 +136,9 @@ class TripyApp(App):
             solver = ModifiedTspSolver(m, scores, start=INDEX_BY_NAME[self.start_button.text])
             route = solver.best_route()
             routes = solver.all_route()
-            graph = Probability_distribution(routes)
-            self.probability_view.add_widget(FigureCanvasKivyAgg(graph.plot_graph(0.35)))
+            graph = Probability_distribution(routes, self.start_button.text).plot_graph()
+            self.probability_view1.show_graph(self.start_button.text+"probability.html")
+            #self.probability_view.add_widget(FigureCanvasKivyAgg(graph.plot_graph(0.35)))
             print("Routes: ", routes)
             for i in route:
                 path += i + ","
@@ -142,13 +149,16 @@ class TripyApp(App):
         
 
     def _country_on_click(self, instance):
-        self.graph_view.clear_widgets()
+        #self.graph_view.clear_widgets()
         if self.country_button.text == "Sentiment Score":
-            graph1 = Sentiment_graph()
-            self.graph_view.add_widget(FigureCanvasKivyAgg(graph1.plot_graph(0.35)))
+            graph1 = Sentiment_graph().plot_graph()
+            self.sentiment_view1.show_graph("sentiment.html")
+            #self.graph_view.add_widget(FigureCanvasKivyAgg(graph1.plot_graph(0.35)))
         else:
-            graph1= Graph(self.country_button.text)
-            self.graph_view.add_widget(FigureCanvasKivyAgg(graph1.plot_all_graph(0.35)))
+            graph1= Graph(self.country_button.text).plot_all_graph()
+            self.sentiment_view1.show_graph(self.country_button.text+"graph.html")
+            #self.graph_view.add_widget(FigureCanvasKivyAgg(graph1.plot_all_graph(0.35)))
+
 
 
 
